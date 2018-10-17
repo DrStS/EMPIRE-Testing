@@ -1,0 +1,42 @@
+*** Settings ***
+Library    OperatingSystem
+Library    robotLibs/ownLib.py
+
+*** Variables ***
+
+
+*** Testcases ***
+Example - iterativeCouplingMeshClients
+   ${output}=	      Run	        cd iterativeCouplingMeshClients; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+
+Example - meshWithMillionsNodesMeshClients
+   ${output}=	      Run	        cd meshWithMillionsNodesMeshClients; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+   
+Example - iterativeCouplingDummyCSMAndOF (idealizedPiston)
+   ${output}=	      Run	        cd iterativeCouplingDummyCSMAndOF; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+
+Example - poissonFlow
+   ${output}=	      Run	        cd poissonFlow; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+   
+Example - cavityFSIBenchmark
+   ${output}=	      Run	       cd cavityFSIBenchmark; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+
+Example - cavityFSIBenchmarkWithParallelOF
+   ${output}=	      Run	       cd cavityFSIBenchmark; bash runParallelOF.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading
+   
+Example - pingpong signal
+   ${output}=	      Run	       cd pythonExamplePingPong; bash run.sh ${CC}
+   LOG                ${output}
+   Should End With    ${output}     Stop openmp threading

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Loose coupling with Ping Pong for 10 time steps. -->
+<EMPEROR xmlns="EmperorInput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="EmperorInput http://empire.st.bv.tum.de/projects/empire/repository/revisions/master/raw/xmlSchema/emperorInput.xsd">
+	<!-- ================ define clientCodes ======================================== -->
+	<clientCode name="ping">
+		<signal name="signal1" size="5" />
+		<signal name="signal2" size="10" />
+	</clientCode>
+	<clientCode name="pong">
+		<signal name="signal1" size="5" />
+		<signal name="signal2" size="10" />
+	</clientCode>
+	<!-- ================ define dataOutputs ======================================== -->
+	<dataOutput name="output1" interval="1">
+		<signalRef clientCodeName="ping" signalName="signal1" />
+		<signalRef clientCodeName="ping" signalName="signal2" />
+		<signalRef clientCodeName="pong" signalName="signal1" />
+		<signalRef clientCodeName="pong" signalName="signal2" />
+	</dataOutput>
+	<!-- ================ define connections ======================================== -->
+	<connection name="set initial value">
+		<sequence>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="ping" signalName="signal2" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="pong" signalName="signal1" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+		</sequence>
+	</connection>
+
+	<connection name="Jacobi step 1">
+		<output>
+			<signalRef clientCodeName="ping" signalName="signal2" />
+		</output>
+		<output>
+			<signalRef clientCodeName="pong" signalName="signal1" />
+		</output>
+	</connection>
+
+	<connection name="Jacobi step 2">
+		<input>
+			<signalRef clientCodeName="ping" signalName="signal1" />
+		</input>
+		<input>
+			<signalRef clientCodeName="pong" signalName="signal2" />
+		</input>
+		<sequence>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="ping" signalName="signal1" />
+				</input>
+				<output>
+					<signalRef clientCodeName="pong" signalName="signal1" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="pong" signalName="signal2" />
+				</input>
+				<output>
+					<signalRef clientCodeName="ping" signalName="signal2" />
+				</output>
+
+			</filter>
+		</sequence>
+	</connection>
+
+
+	<connection name="G-S step 1">
+		<output>
+			<signalRef clientCodeName="ping" signalName="signal2" />
+		</output>
+	</connection>
+
+	<connection name="G-S step 2">
+		<input>
+			<signalRef clientCodeName="ping" signalName="signal1" />
+		</input>
+		<output>
+			<signalRef clientCodeName="pong" signalName="signal1" />
+		</output>
+		<sequence>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="ping" signalName="signal1" />
+				</input>
+				<output>
+					<signalRef clientCodeName="pong" signalName="signal1" />
+				</output>
+			</filter>
+		</sequence>
+	</connection>
+
+	<connection name="G-S step 3">
+		<input>
+			<signalRef clientCodeName="pong" signalName="signal2" />
+		</input>
+		<sequence>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="pong" signalName="signal2" />
+				</input>
+				<output>
+					<signalRef clientCodeName="ping" signalName="signal2" />
+				</output>
+			</filter>
+		</sequence>
+	</connection>
+	<!-- ================ define coSimulation process ================================ -->
+	<coSimulation>
+		<sequence>
+			<couplingLogic type="connection">
+				<connectionRef connectionName="set initial value" />
+			</couplingLogic>
+
+			<couplingLogic type="timeStepLoop">
+				<timeStepLoop numTimeSteps="1">
+					<dataOutputRef dataOutputName="output1" />
+				</timeStepLoop>
+				<sequence>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="Jacobi step 1" />
+					</couplingLogic>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="Jacobi step 2" />
+					</couplingLogic>
+					<!--<couplingLogic type="connection"> <connectionRef connectionName="G-S 
+						step 1" /> </couplingLogic> <couplingLogic type="connection"> <connectionRef 
+						connectionName="G-S step 2" /> </couplingLogic> <couplingLogic type="connection"> 
+						<connectionRef connectionName="G-S step 3" /> </couplingLogic> -->
+				</sequence>
+			</couplingLogic>
+		</sequence>
+	</coSimulation>
+	<general>
+		<portFile>server.port</portFile>
+		<verbosity>DEBUG</verbosity>
+	</general>
+</EMPEROR>

@@ -1,0 +1,8 @@
+<userDefined>
+        <couplingType>iterativeCoupling</couplingType>
+        <!--optimization type of the problem
+            Either CSMOptimization or FSIOptimization, FSI is default-->
+        <optimizationType>FSIOptimization</optimizationType>
+        <!-- only one constraint possible, only volume available yet-->
+        <constraintType>volume</constraintType>
+</userDefined>

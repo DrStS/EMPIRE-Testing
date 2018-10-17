@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case LinearTwoSpringDynamicIterativeConstRelax -->
+<EMPEROR xmlns="EmperorInput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="EmperorInput http://empire.st.bv.tum.de/projects/empire/repository/revisions/master/raw/xmlSchema/emperorInput.xsd">
+	<!-- ================ define clientCodes ======================================== -->
+	<clientCode name="subSystem1">
+		<signal name="interfaceForceU" size="1" />
+		<signal name="interfaceDisplacementY" size="1" />
+		<signal name="interfaceDisplacementVecY" size="3" />
+		<signal name="interfaceJacobian" size="1" />
+	</clientCode>
+	<clientCode name="subSystem2">
+		<signal name="interfaceDisplacementU" size="1" />
+		<signal name="interfaceForceY" size="1" />
+		<signal name="interfaceJacobian" size="1" />
+	</clientCode>
+	<!-- ================ define dataOutputs ======================================== -->
+	<dataOutput name="timestep" interval="1">
+		<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+		<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+		<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementVecY" />
+		<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+		<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+	</dataOutput>
+	<dataOutput name="iterativeCoupling" interval="1">
+		<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+		<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+		<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementVecY" />	
+		<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+		<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+	</dataOutput>
+	<!-- ================ define couplingAlgorithms ======================================== -->
+	<couplingAlgorithm type="constantRelaxation" name="constantRelaxation">
+		<residual index="1">
+			<component coefficient="1" timeToUpdate="iterationBeginning">
+				<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+			</component>
+			<component coefficient="-1" timeToUpdate="iterationEnd">
+				<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+			</component>
+		</residual>
+		<residual index="2">
+			<component coefficient="1" timeToUpdate="iterationBeginning">
+				<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+			</component>
+			<component coefficient="-1" timeToUpdate="iterationEnd">
+				<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+			</component>
+		</residual>
+		<output index="2">
+			<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+		</output>
+		<output index="1">
+			<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+		</output>
+		<constantRelaxation relaxationFactor="-0.1" />
+	</couplingAlgorithm>
+	
+	
+	
+	
+	
+	<couplingAlgorithm type="IJCSA" name="InterfaceJac">
+		<residual index="1">
+			<component coefficient="1" timeToUpdate="iterationBeginning">
+				<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+			</component>
+			<component coefficient="-1" timeToUpdate="iterationEnd">
+				<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+			</component>
+		</residual>
+		
+		<residual index="2">
+			<component coefficient="1" timeToUpdate="iterationBeginning">
+				<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+			</component>
+			<component coefficient="-1" timeToUpdate="iterationEnd">
+				<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+			</component>
+		</residual>
+		
+		<interfaceJacobian indexRow="1" indexColumn="1">
+			<constantValue value="1" />
+		</interfaceJacobian>
+		<interfaceJacobian indexRow="2" indexColumn="2">
+			<constantValue value="1" />
+		</interfaceJacobian>
+		<interfaceJacobian indexRow="1" indexColumn="2">
+			<constantValue value="55.5" />
+		</interfaceJacobian>
+		<interfaceJacobian indexRow="2" indexColumn="1">
+			<constantValue value="-0.02197802197802198" />
+		</interfaceJacobian>
+	
+		
+		<output index="1">
+			<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+		</output>
+		<output index="2">
+			<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+		</output>
+	</couplingAlgorithm>
+
+	<!-- ================ define connections ======================================== -->
+	<connection name="set_initial_value">
+		<sequence>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+		</sequence>
+	</connection>
+
+   <connection name="JC_step_1">
+		<output>
+			<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+		</output>
+		<output>
+			<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+		</output>
+  </connection>
+	
+  <connection name="JC_step_2">
+		<input>
+			<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementVecY" />
+		</input>
+		<input>
+			<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+		</input>
+		<sequence>
+			<filter type="copyFilter">
+			   	<copyFilter signalOffset="2" />
+				<input>
+					<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementVecY" />
+				</input>
+				<output>
+					<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="subSystem1" signalName="interfaceDisplacementY" />
+				</input>
+				<output>
+					<signalRef clientCodeName="subSystem2" signalName="interfaceDisplacementU" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="subSystem2" signalName="interfaceForceY" />
+				</input>
+				<output>
+					<signalRef clientCodeName="subSystem1" signalName="interfaceForceU" />
+				</output>
+
+			</filter>
+		</sequence>
+	</connection>
+	
+	<!-- ================ define coSimulation process ================================ -->
+	<coSimulation>
+		<sequence>
+			<couplingLogic type="connection">
+				<connectionRef connectionName="set_initial_value" />
+			</couplingLogic>
+
+			<couplingLogic type="timeStepLoop">
+				<timeStepLoop numTimeSteps="10">
+					<!--  <dataOutputRef dataOutputName="timestep" /> -->
+				</timeStepLoop>
+				<sequence>
+					<couplingLogic type="iterativeCouplingLoop">
+						<iterativeCouplingLoop>
+							<convergenceChecker maxNumOfIterations="10">
+								<checkResidual relativeTolerance="0" absoluteTolerance="1e-8">
+									<residualRef couplingAlgorithmName="InterfaceJac" index="1" />
+								</checkResidual>
+								<checkResidual relativeTolerance="0" absoluteTolerance="1e-8">
+									<residualRef couplingAlgorithmName="InterfaceJac" index="2" />
+								</checkResidual>
+							</convergenceChecker>
+							<convergenceObserver>
+								<clientCodeRef clientCodeName="subSystem1" />
+							</convergenceObserver>
+							<convergenceObserver>
+								<clientCodeRef clientCodeName="subSystem2" />
+							</convergenceObserver>
+							<couplingAlgorithmRef couplingAlgorithmName="InterfaceJac" />
+							  <!-- <dataOutputRef dataOutputName="iterativeCoupling" /> -->
+						</iterativeCouplingLoop>
+						<sequence>
+							<couplingLogic type="connection">
+								<connectionRef connectionName="JC_step_1" />
+							</couplingLogic>
+							<couplingLogic type="connection">
+								<connectionRef connectionName="JC_step_2" />
+							</couplingLogic>
+						</sequence>
+					</couplingLogic>
+				</sequence>
+			</couplingLogic>
+		</sequence>
+	</coSimulation>
+	<general>
+		<portFile>server.port</portFile>
+		<verbosity>DEBUG</verbosity>
+	</general>
+</EMPEROR>

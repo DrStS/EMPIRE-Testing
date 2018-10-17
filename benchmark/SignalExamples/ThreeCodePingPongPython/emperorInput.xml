@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Jacobi Signal Coupling NREL. -->
+<EMPEROR xmlns="EmperorInput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="EmperorInput http://empire.st.bv.tum.de/projects/empire/repository/revisions/master/raw/xmlSchema/emperorInput.xsd">
+	<!-- ================ define clientCodes ======================================== -->
+	<clientCode name="generatorUnit">
+		<!-- U --><signal name="forcesRotorMoment"              size="3" />
+		<!-- Y --><signal name="cellZoneRotorAllRadialVelocity" size="3" />
+	</clientCode>
+	<clientCode name="controlUnit">
+		<!-- U --><signal name="cellZoneRotorAllRadialVelocity" size="3" />
+		<!-- Y --><signal name="cellZoneBlade3RadialVelocity"   size="3" />
+	</clientCode>
+	<clientCode name="OpenFOAM">
+	    <!-- U --><signal name="cellZoneRotorAllRadialVelocity" size="3" />
+		<!-- U --><signal name="cellZoneBlade1RadialVelocity"   size="3" />
+		<!-- U --><signal name="cellZoneBlade3RadialVelocity"   size="3" />
+		<!-- Y --><signal name="forcesRotorMoment"              size="3" />
+	</clientCode>
+	<!-- ================ define dataOutputs ======================================== -->
+	<dataOutput name="output1" interval="1">
+		<signalRef clientCodeName="generatorUnit" signalName="forcesRotorMoment" />
+		<signalRef clientCodeName="generatorUnit" signalName="cellZoneRotorAllRadialVelocity" />
+		<signalRef clientCodeName="controlUnit"   signalName="cellZoneRotorAllRadialVelocity" />
+		<signalRef clientCodeName="controlUnit"   signalName="cellZoneBlade3RadialVelocity" />
+		<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade1RadialVelocity" />
+		<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade3RadialVelocity" />
+		<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneRotorAllRadialVelocity" />
+		<signalRef clientCodeName="OpenFOAM"      signalName="forcesRotorMoment" />
+	</dataOutput>
+	<!-- ================ define connections ======================================== -->
+	<connection name="set initial value">
+		<sequence>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="generatorUnit" signalName="forcesRotorMoment" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+			<filter type="setFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="controlUnit" signalName="cellZoneRotorAllRadialVelocity" />
+				</inputAndOutput>
+				<setFilter value="0.0 432 0.0" />
+			</filter>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="OpenFOAM" signalName="cellZoneBlade1RadialVelocity" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="OpenFOAM" signalName="cellZoneBlade3RadialVelocity" />
+				</inputAndOutput>
+				<scalingFilter factor="0.0" />
+			</filter>
+		</sequence>
+	</connection>
+
+	<connection name="Jacobi step 1">
+		<output>
+			<signalRef clientCodeName="generatorUnit" signalName="forcesRotorMoment" />
+		</output>
+		<output>
+			<signalRef clientCodeName="controlUnit"   signalName="cellZoneRotorAllRadialVelocity" />
+		</output>
+		<output>
+			<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade3RadialVelocity" />
+		</output>
+		<output>
+			<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade1RadialVelocity" />
+		</output>
+		<output>
+			<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneRotorAllRadialVelocity" />
+		</output>
+	</connection>
+
+	
+	<connection name="Jacobi step 2">
+		<input>
+			<signalRef clientCodeName="generatorUnit" signalName="cellZoneRotorAllRadialVelocity" />
+		</input>
+		<input>
+			<signalRef clientCodeName="controlUnit"   signalName="cellZoneBlade3RadialVelocity" />
+		</input>
+		<input>
+			<signalRef clientCodeName="OpenFOAM"      signalName="forcesRotorMoment" />
+		</input>
+		<sequence>
+			<filter type="copyFilter">
+			   	<copyFilter signalOffset="0" />
+				<input>
+					<signalRef clientCodeName="OpenFOAM"      signalName="forcesRotorMoment" />
+				</input>
+				<output>
+					<signalRef clientCodeName="generatorUnit" signalName="forcesRotorMoment" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="generatorUnit" signalName="cellZoneRotorAllRadialVelocity" />
+				</input>
+				<output>
+					<signalRef clientCodeName="controlUnit"   signalName="cellZoneRotorAllRadialVelocity" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="generatorUnit" signalName="cellZoneRotorAllRadialVelocity" />
+				</input>
+				<output>
+					<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneRotorAllRadialVelocity" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="controlUnit"   signalName="cellZoneBlade3RadialVelocity" />
+				</input>
+				<output>
+					<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade3RadialVelocity" />
+				</output>
+			</filter>
+			<filter type="copyFilter">
+				<input>
+					<signalRef clientCodeName="controlUnit"   signalName="cellZoneBlade3RadialVelocity" />
+				</input>
+				<output>
+					<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade1RadialVelocity" />
+				</output>
+			</filter>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="OpenFOAM"      signalName="cellZoneBlade1RadialVelocity" />
+				</inputAndOutput>
+			    <scalingFilter factor="-1.0" />
+			</filter>
+		</sequence>
+	</connection>
+
+	<!-- ================ define coSimulation process ================================ -->
+	<coSimulation>
+		<sequence>
+			<couplingLogic type="connection">
+				<connectionRef connectionName="set initial value" />
+			</couplingLogic>
+
+			<couplingLogic type="timeStepLoop">
+				<timeStepLoop numTimeSteps="10">
+					<dataOutputRef dataOutputName="output1" />
+				</timeStepLoop>
+				<sequence>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="Jacobi step 1" />
+					</couplingLogic>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="Jacobi step 2" />
+					</couplingLogic>
+				</sequence>
+			</couplingLogic>
+		</sequence>
+	</coSimulation>
+	<general>
+		<portFile>server.port</portFile>
+		<verbosity>DEBUG</verbosity>
+	</general>
+</EMPEROR>

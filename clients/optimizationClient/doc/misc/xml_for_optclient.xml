@@ -1,0 +1,52 @@
+<userDefined>
+    <!--name of the external library used
+		library available :
+			NLOpt
+	-->
+    <Library>NLOpt</Library>
+    <!-- type of the mesh, FEM or IGA -->
+    <MeshType>IGA</MeshType>
+    <!--objective to the problem, either pre-programmed or user-defined, format : <type> <name> [size]
+		type :
+			min
+			max
+		list preprogrammed :
+			Lift
+			Drag
+			LiftDrag
+			Strain
+	-->
+    <Objective>min Drag</Objective>
+    <!--constraint list, composed of a <name>,a <type> (i.e. <,=,>), [tolerance=1e-6] value, and [reference] value
+		available constraint :
+			volume
+		with type (strange due to xml syntax collision) :
+			&lt; 
+			=
+			&gt;
+	-->
+    <Constraint1>volume = 1e-2</Constraint1>
+    <Constraint2>volume  &lt; 1e-6 0.3</Constraint2>
+	.
+	.
+	.
+    <ConstraintN>name type tolerance reference</ConstraintN>
+    <!--sensitivity selected, can have extra info appended
+		available sensitivity :
+			FiniteDifference, extra info : initial perturbation
+	-->
+    <Sensitivity>FiniteDifference 5e-1</Sensitivity>
+    
+    <!--format : <x/f> <abs/rel> <value> -->
+    <StopCriteria>f rel 1e-4</StopCriteria>
+    <!--index of the dof mesh as design variable -->
+    <DesignVariableIndex>1 5 8 11 13</DesignVariableIndex>
+    <!--optional index couple for symmetry, format : <#id destination> <#id source> [factor=1]; -->
+    <SymmetryIndex>16 1; 20 5; 23 8; 26 11; 28 13;32 5 -1;35 8 -1;38 11 -1; 41 32; 44 35; 47 38</SymmetryIndex>
+    <!-- lower/upper bound, same for all or specified for every single DesignVariableIndex -->
+    <LowerBound>-0.2</LowerBound>
+    <UpperBound>0.2 0.3 0.3 0.3 0.1</UpperBound>
+    <!-- name of the algorithm as the definition is made in optclient -->
+    <Algorithm>LN_COBYLA</Algorithm>
+
+</userDefined>

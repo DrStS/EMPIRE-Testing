@@ -1,0 +1,118 @@
+/*
+ * ================================================
+ * Pseudo code of the server (EMPEROR)
+ * ================================================
+ */
+int main() {
+	// Stage 1: receive meshes ...
+	// Stage 2: do co-simulation ...
+	//  ...
+	//  ...
+	for (int i=0; i<numberOfTimeSteps; i++) {// time step loop
+		//  ...
+		while (!isConvergent) { // iterative coupling loop
+			//  ...
+			sendSignalTo("generatorUnit", "forcesRotorMoment");
+			sendSignalTo("controlUnit", "cellZoneRotorAllRadialVelocity");
+			sendSignalTo("OpenFOAM", "cellZoneBlade3RadialVelocity");
+			sendSignalTo("OpenFOAM", "cellZoneBlade1RadialVelocity");
+			sendSignalTo("OpenFOAM", "cellZoneRotorAllRadialVelocity");
+			//  ...
+			//  ...
+			receiveSignalFrom("generatorUnit", "cellZoneRotorAllRadialVelocity");
+			receiveSignalFrom("controlUnit", "cellZoneBlade3RadialVelocity");
+			receiveSignalFrom("OpenFOAM", "forcesRotorMoment");
+			//  ...
+			sendConvergenceSignalTo(generatorUnit, isConvergent);
+			sendConvergenceSignalTo(controlUnit, isConvergent);
+			sendConvergenceSignalTo(OpenFOAM, isConvergent);
+		}
+	}
+	//  ...
+	return;
+}
+
+
+
+/*
+ * ================================================
+ * Pseudo code of the client code (generatorUnit)
+ * ================================================
+ */
+int main() {
+	// Stage 1: send meshes ...
+	// Stage 2: do co-simulation ...
+	for (int i=0; i<numberOfTimeSteps; i++) {// time step loop
+		//  ...
+		while (!isConvergent) { // iterative coupling loop
+			//  ...
+			receiveSignalFromServer("forcesRotorMoment");
+			//  ...
+			//  ...
+			sendSignalToServer("cellZoneRotorAllRadialVelocity");
+			//  ...
+			isConvergent = receiveConvergenceSignalFromServer();
+		}
+	}
+	//  ...
+	return;
+}
+
+
+
+/*
+ * ================================================
+ * Pseudo code of the client code (controlUnit)
+ * ================================================
+ */
+int main() {
+	// Stage 1: send meshes ...
+	// Stage 2: do co-simulation ...
+	for (int i=0; i<numberOfTimeSteps; i++) {// time step loop
+		//  ...
+		while (!isConvergent) { // iterative coupling loop
+			//  ...
+			receiveSignalFromServer("cellZoneRotorAllRadialVelocity");
+			//  ...
+			//  ...
+			sendSignalToServer("cellZoneBlade3RadialVelocity");
+			//  ...
+			isConvergent = receiveConvergenceSignalFromServer();
+		}
+	}
+	//  ...
+	return;
+}
+
+
+
+/*
+ * ================================================
+ * Pseudo code of the client code (OpenFOAM)
+ * ================================================
+ */
+int main() {
+	// Stage 1: send meshes ...
+	// Stage 2: do co-simulation ...
+	for (int i=0; i<numberOfTimeSteps; i++) {// time step loop
+		//  ...
+		while (!isConvergent) { // iterative coupling loop
+			//  ...
+			receiveSignalFromServer("cellZoneBlade3RadialVelocity");
+			receiveSignalFromServer("cellZoneBlade1RadialVelocity");
+			receiveSignalFromServer("cellZoneRotorAllRadialVelocity");
+			//  ...
+			//  ...
+			sendSignalToServer("forcesRotorMoment");
+			//  ...
+			isConvergent = receiveConvergenceSignalFromServer();
+		}
+	}
+	//  ...
+	return;
+}
+
+
+
+
+

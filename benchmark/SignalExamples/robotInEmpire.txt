@@ -1,0 +1,20 @@
+*** Settings ***
+Library          OperatingSystem
+Library          ../robotLibraries/compare.py
+Documentation    Test Signal Co-Simulation cases.
+*** Variables ***
+
+
+*** Testcases ***
+LinearTwoSpringDynamicIterativeAitken
+                      Run			cd ${TEST NAME}; bash run.sh
+                      Get File  ${TEST NAME}/Emperor.log
+                      Get File  ${TEST NAME}/Emperor.err        
+   compare floats     ${TEST NAME}/refSolution/io_history_subSystem2_ref.dat  ${TEST NAME}/io_history_subSystem2.dat  1e-6
+
+LinearTwoSpringDynamicIterativeConstRelax
+                      Run			cd ${TEST NAME}; bash run.sh
+                      Get File  ${TEST NAME}/Emperor.log
+                      Get File  ${TEST NAME}/Emperor.err        
+   compare floats     ${TEST NAME}/refSolution/io_history_subSystem2_ref.dat  ${TEST NAME}/io_history_subSystem2.dat  1e-6
+   

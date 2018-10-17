@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Loose coupling with Ping Pong for 10 time steps. -->
+<EMPEROR xmlns="EmperorInput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="EmperorInput http://empire.st.bv.tum.de/projects/empire/repository/revisions/master/raw/xmlSchema/emperorInput.xsd">
+	<!-- ================ define clientCodes ======================================== -->
+	<clientCode name="matlabClient">
+		<mesh name="mesh1">
+			<dataField location="atNode" name="df1" dimension="vector"
+				typeOfQuantity="field" />
+		</mesh>
+		<signal name="signal1" size="5" />
+	</clientCode>
+	<!-- ================ define dataOutputs ======================================== -->
+	<dataOutput name="output1" interval="1">
+		<signalRef clientCodeName="matlabClient" signalName="signal1" />
+	</dataOutput>
+	<!-- ================ define connections ======================================== -->
+	<connection name="signal connection">
+		<inputAndOutput>
+			<signalRef clientCodeName="matlabClient" signalName="signal1" />
+		</inputAndOutput>
+		<sequence>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<signalRef clientCodeName="matlabClient" signalName="signal1" />
+				</inputAndOutput>
+				<scalingFilter factor="10" />
+			</filter>
+		</sequence>
+	</connection>
+	<connection name="datafield connection">
+		<inputAndOutput>
+			<dataFieldRef clientCodeName="matlabClient" meshName="mesh1"
+				dataFieldName="df1" />
+		</inputAndOutput>
+		<sequence>
+			<filter type="scalingFilter">
+				<inputAndOutput>
+					<dataFieldRef clientCodeName="matlabClient" meshName="mesh1"
+						dataFieldName="df1" />
+				</inputAndOutput>
+				<scalingFilter factor="10" />
+			</filter>
+		</sequence>
+	</connection>
+
+	<!-- ================ define coSimulation process ================================ -->
+	<coSimulation>
+		<sequence>
+			<couplingLogic type="timeStepLoop">
+				<timeStepLoop numTimeSteps="1">
+					<dataOutputRef dataOutputName="output1" />
+				</timeStepLoop>
+				<sequence>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="signal connection" />
+					</couplingLogic>
+					<couplingLogic type="connection">
+						<connectionRef connectionName="datafield connection" />
+					</couplingLogic>
+				</sequence>
+			</couplingLogic>
+		</sequence>
+	</coSimulation>
+	<general>
+		<portFile>server.port</portFile>
+		<verbosity>DEBUG</verbosity>
+	</general>
+</EMPEROR>

@@ -1,0 +1,7 @@
+<!-- TODO -->
+<userDefined>
+        <optimizationType>FSIOptimization</optimizationType>
+        <couplingType>iterativeCoupling</couplingType>
+        <sendDataField>traction</sendDataField> 		
+        <forceSignalNames>liftDragForce</forceSignalNames>
+</userDefined>
